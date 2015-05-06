@@ -1,0 +1,117 @@
+# Maintainer: Taeyeon Mori <orochimarufan.x3@gmail.com>
+# vim: ts=2 sw=2 et:
+
+pkgname=plex-media-server
+pkgver=0.9.12.1.1079
+_pkgsum=b655370
+pkgrel=1
+pkgdesc='Plex Media Server'
+arch='x86_64'
+url='https://plex.tv/'
+license='custom'
+
+depends="glibc-runtime"
+makedepends="glibc-runtime patchelf"
+
+install="${pkgname}.pre-install"
+source="${pkgname}.conf.d
+        ${pkgname}.init.d
+        terms.txt
+        start_pms.patch"
+source_x86="https://downloads.plex.tv/plex-media-server/${pkgver}-${_pkgsum}/plexmediaserver_${pkgver}-${_pkgsum}_i386.deb"
+source_x86_64="https://downloads.plex.tv/plex-media-server/${pkgver}-${_pkgsum}/plexmediaserver_${pkgver}-${_pkgsum}_amd64.deb"
+
+pkgusers="plex"
+pkggroups="plex"
+
+options="!tracedeps"
+
+prepare() {
+  # unpack debian package
+  cd "$srcdir"
+  mkdir plexmediaserver
+  cd plexmediaserver
+  ar x ../plexmediaserver*.deb
+  tar -xf data.tar.*
+  cd ..
+}
+
+build() {
+  # patch start_pms
+  cd "$srcdir/plexmediaserver/usr/sbin"
+  patch < "$srcdir/start_pms.patch"
+
+  # patch executables
+  cd "$srcdir/plexmediaserver/usr/lib/plexmediaserver"
+
+  . /glibc/lib/vars.sh
+
+  OFS="$IFS"
+  IFS="
+"
+
+  for executable in `find . -type f -perm /0111 -print`; do
+    if file --brief "$executable" | grep "ELF" | grep -q "ld-linux"; then
+      echo "patching ELF executable `basename "$executable"`"
+      patchelf --set-interpreter "$GLIBC_LD_LINUX_SO" "$executable"
+    fi
+  done
+
+  IFS="$OFS"
+}
+
+package() {
+  cd "$srcdir"
+  install -dm 755 "${pkgdir}/glibc"
+  install -m 755 plexmediaserver/usr/sbin/start_pms "${pkgdir}/glibc/start_pms"
+  cp -a plexmediaserver/usr/lib/plexmediaserver "${pkgdir}/glibc/${pkgname}"
+
+  install -Dm 755 "${pkgname}.init.d" "${pkgdir}/etc/init.d/${pkgname}"
+  install -Dm 644 "${pkgname}.conf.d" "${pkgdir}/etc/conf.d/${pkgname}"
+
+  install -o plex -g plex -dm 755 "${pkgdir}/var/lib/plex" "${pkgdir}/var/log/plex"
+
+  install -Dm 644 terms.txt "${pkgdir}/usr/share/licenses/${pkgname}/terms.txt"
+}
+
+
+# Fix arch
+add_arch() {
+  local var
+  var="{$1_$3}"
+  eval "$1=\"\$$1\$2\$$var\""
+}
+
+# Important: remove *sums above before running abuild checksum!
+# Afterwards, move it from the bottom up and separate out the arch-dependent ones
+# as long as only one arch is supported, all of it can be safely ignored
+if [ "$1" = "checksum" ]; then
+  # Create checksum for all sources!
+  for _a in $arch; do
+    add_arch source " " "$_a"
+  done
+else
+  # Source array
+  add_arch source " " "$CARCH"
+  # Checksums
+  for csum in md5 sha256 sha512; do
+    add_arch ${csum}sums "
+" "$CARCH"
+  done
+fi
+
+md5sums="95ac928f91ad4a2e4e9d7f5f8df59a7f  plex-media-server.conf.d
+d60df1d829a815d9c26983468d7308f7  plex-media-server.init.d
+bd703bc750b989a27edd590eb8c8e9d7  terms.txt
+5312ec0cbac46f2c696c80ccaf2e820c  start_pms.patch
+b356211b5e45922133d6a4662f9e5c60  plexmediaserver_0.9.12.1.1079-b655370_amd64.deb"
+sha256sums="1dcedead56723f717edd69906c359362e639e20a369708951aba70aaec3c9dd2  plex-media-server.conf.d
+29caaf9ad4b03e066662a4b8b892aadef4c333796aaef5fa387c7da201e6df7e  plex-media-server.init.d
+7bb97271eb2dc5d1dcb95f9763f505970d234df17f1b8d79b467b9020257915a  terms.txt
+d9fb2bcf554e0f3b9f0521bf7194713cf1e21cdb7004b756c9dd3fe73ad5c15f  start_pms.patch
+8641737b651533619912cd6dd67afed1d6b8a1c4b8642d780f03ec33370985d1  plexmediaserver_0.9.12.1.1079-b655370_amd64.deb"
+sha512sums="97043d00ab18fc5c4b64347e5a7caf99323444f3d5b697cab53eff1b58a0f5d97d86caff8ad02557890d26cce7c294a7ad09746439ead01070047e2231afb76c  plex-media-server.conf.d
+e57960611a0a4f62772a6304f814077523fc1e69d36202f2fd16ffd9262c483591cdbca9d89ea09f0fb3c6989d99d1de158b1be0ba40c6f5c2a1748b9060a43a  plex-media-server.init.d
+cfdf91251dbcfc4b16cd0242ee9c8fc749e02130d56d10c5e13425cfaf6530dfd7dee33ca85ff79630110b694ad77e5aeab2b94b4caf02276d01648201705ecc  terms.txt
+42977eba4066b21cde47d4fd7663a252c1726e95451b6fd0d483c7e337c2c09ba08caf700b6f72f6853190aaf9cfd130586d45f5e6c8e1ca64da3bf726a58fae  start_pms.patch
+7ddbc84deb9aaa71ad56e9e692e1a4757f422c303e0d8e076f11599ab707ef40c7a59e9579f433384c2bf1da8808462607f97802d23b8b7cd028d30c90412d84  plexmediaserver_0.9.12.1.1079-b655370_amd64.deb"

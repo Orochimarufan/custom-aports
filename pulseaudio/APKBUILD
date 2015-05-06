@@ -1,0 +1,176 @@
+# Contributor: Carlo Landmeter <clandmeter@gmail.com>
+# Contributor: Stuart Cardall <developer@it-offshore.co.uk>
+# Maintainer: Taeyeon Mori <orochimarufan.x3@gmail.com>
+pkgname=pulseaudio
+pkgver=6.0
+pkgrel=0
+arch=x86_64
+
+pkgdesc="A featureful, general-purpose sound server"
+url="http://www.freedesktop.org/wiki/Software/PulseAudio"
+license="LGPL AGPL3"
+
+options="!libtool"
+
+depends=""
+
+depends_dev="
+    glib-dev
+    json-c-dev
+    libsndfile-dev
+    tdb-dev
+    udev-dev
+    dbus-dev
+    speex-dev
+    bluez-dev
+    gconf-dev
+    avahi-dev
+    gtk+3.0-dev
+    libsamplerate-dev
+    openssl-dev
+    alsa-lib-dev
+    jack-dev
+    check-dev
+    orc-dev
+    libasyncns-dev
+    fftw-dev
+    libice-dev
+    libsm-dev
+    libcap-dev
+    speexdsp-dev"
+
+makedepends="
+    $depends_dev
+    autoconf
+    automake
+    libtool
+    intltool"
+
+install=""
+
+subpackages="$pkgname-dev $pkgname-libs"
+
+source="http://freedesktop.org/software/pulseaudio/releases/pulseaudio-$pkgver.tar.gz
+    $pkgname.initd
+    $pkgname.confd
+    "
+
+prepare() {
+    cd "$srcdir/pulseaudio-$pkgver"
+}
+
+build() {
+    cd "$srcdir/pulseaudio-$pkgver"
+
+    ./configure --build=$CBUILD \
+        --host=$CHOST \
+        --prefix=/usr \
+        --sysconfdir=/etc \
+        --libexecdir=/usr/lib \
+        --localstatedir=/var \
+        --with-udev-rules-dir=/usr/lib/udev/rules.d \
+        --with-database=tdb \
+        --disable-tcpwrap \
+        --disable-bluez4 \
+        --disable-oss-wrapper \
+        --disable-rpath \
+        --disable-default-build-tests \
+        || return 1
+    
+    # fight unused direct deps
+    sed -i -e "s/ -shared / -Wl,-O1,--as-needed\0/g" libtool
+
+    # We need to set some defines because of musl differences (for now)
+    # __WORDSIZE is in bits/wordsize.h, included from limits.h in glibc
+    make V=0 LDFLAGS+="-lintl" CFLAGS+="-D__WORDSIZE=64" || return 1
+}
+
+package() {
+    cd "$srcdir/pulseaudio-$pkgver"
+
+    make -j1 DESTDIR="$pkgdir" install \
+        bashcompletiondir=/usr/share/bash-completion/completions || return 1
+
+    rm -rf "$pkgdir"/etc/dbus-1
+
+    # libtool files
+    find "$pkgdir/usr/lib" -name '*.la' -delete
+
+    install -D -m755 "$srcdir"/$pkgname.initd \
+        "$pkgdir"/etc/init.d/$pkgname || return 1
+    install -D -m644 "$srcdir"/$pkgname.confd \
+        "$pkgdir"/etc/conf.d/$pkgname || return 1
+}
+
+pull() {
+    # pull <dir> <files...>
+    # move $pkgdir/<dir>/<files...> to $subpkgdir/<dir>
+    _dir="$1"
+    shift
+
+    mkdir -p "$subpkgdir/$_dir" || return 1
+
+    for i in "$@"; do
+        mv "$pkgdir/$_dir"/$i "$subpkgdir/$_dir" || return 1
+    done
+}
+
+
+libs() {
+    pkgdesc="Pulseaudio libraries"
+    depends=""
+
+    pull etc/pulse client.conf \
+        || return 1
+    
+    pull usr/bin pacat \
+                 pactl \
+                 pamon \
+                 paplay \
+                 parec \
+                 parecord \
+        || return 1
+
+    pull usr/lib libpulsecore-*.so \
+                 libpulse.so* \
+                 libpulse-simple.so* \
+                 libpulse-mainloop-glib.so* \
+                 pulseaudio/ \
+        || return 1
+
+    pull usr/share bash-completion \
+        || return 1
+
+    pull usr/share/man/man1 pacat.1 \
+                            pactl.1 \
+                            paplay.1 \
+        || return 1
+
+    pull usr/share/man/man5 pulse-client.conf.5 \
+        || return 1
+}
+
+dev() {
+    pkgdesc="Pulseaudio development files"
+    depends=""
+
+    pull usr/lib cmake/ \
+                 pkgconfig/ \
+        || return 1
+
+    pull usr include/ \
+        || return 1
+
+    pull usr/share vala/ \
+        || return 1
+}
+
+md5sums="1822a93710dfe42e266102e92a8d2993  pulseaudio-6.0.tar.gz
+305e790e7eced01d3de681379f8f3bc4  pulseaudio.initd
+bf7487ba2c48fc8a56bca41c97a18934  pulseaudio.confd"
+sha256sums="5a5d2b90e1d755590060f429cad492190d31664bd3987350dfab35347e4bef83  pulseaudio-6.0.tar.gz
+c5e427c438e950353a7037d5784cdb91e6bcdd55def6635d8a6387230fbfca2a  pulseaudio.initd
+c03661e8cc902d27ff6b52f291207f2b008957571b942abdd92a873a52aae0dd  pulseaudio.confd"
+sha512sums="241d464c075ec9c26bed71e9b1cc04e70eb624cd73c6b620defe3e70d93b644949de317b4d42384f5e4e9a829c68723815a2c7b18a3d404bb5c5e004075aacaf  pulseaudio-6.0.tar.gz
+d20c1d118a51fa30b28a522ef0e607bd005c098291650aed45ed989d1377326484f1d3549ada38bc5a47f80f339109cdff6a9133359c12fae04b51060b2393e1  pulseaudio.initd
+75b54581591519d63a3362b155c0f9b0501a60763ab394693a456c44d0216138cf3a40bdd0f7442028663bc045e9ffee286f8f8eaf2ee3bb17379b43615fee0e  pulseaudio.confd"

@@ -1,0 +1,3 @@
+#!/bin/sh
+
+adduser -S -h /var/lib/mpd -s /sbin/nologin -G audio -D mpd 2>/dev/null || true

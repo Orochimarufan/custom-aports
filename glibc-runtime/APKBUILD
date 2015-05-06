@@ -1,0 +1,58 @@
+# Maintainer: Taeyeon Mori <orochimarufan.x3@gmail.com>
+
+pkgname=glibc-runtime
+pkgver=2.19
+pkgrel=0
+pkgdesc="glibc libraries taken from Debian, for running proprietary software blobs (libc6, libgcc1, libstdc++6 included)"
+url="http://packages.debian.org/jessie/libc6"
+arch="x86_64"
+license="GPL"
+options="!tracedeps"
+
+mirror="http://ftp.de.debian.org/debian"
+source="$mirror/pool/main/g/glibc/libc6_2.19-18_amd64.deb
+        $mirror/pool/main/g/gcc-4.9/libgcc1_4.9.2-10_amd64.deb
+        $mirror/pool/main/g/gcc-4.9/libstdc++6_4.9.2-10_amd64.deb"
+
+debs="libc6 libgcc1 libstdc++6"
+
+_builddir="$srcdir"
+prepare() {
+	cd "$_builddir"
+    for pkg in $debs; do
+        mkdir $pkg
+        cd $pkg
+        ar x ../$pkg*.deb
+        tar -xf data.tar.*
+        cd ..
+    done
+}
+
+build() {
+	cd "$_builddir"
+}
+
+package() {
+	cd "$_builddir"
+    _destdir="$pkgdir/glibc/lib"
+    install -dm 755 "$_destdir"
+
+    _multiarch="x86_64-linux-gnu"
+    cp -a libc6/lib/$_multiarch/* "$_destdir"
+    cp -a libgcc1/lib/$_multiarch/* "$_destdir"
+    cp -a libstdc++6/usr/lib/$_multiarch/* "$_destdir"
+
+    # Add a sourceable file with vars
+    echo "GLIBC_LIBRARY_PATH=/glibc/lib" >"$_destdir/vars.sh"
+    echo "GLIBC_LD_LINUX_SO=/glibc/lib/ld-linux-x86-64.so.2" >>"$_destdir/vars.sh"
+}
+
+md5sums="5876f07f1097a4769085b8071be7c4e6  libc6_2.19-18_amd64.deb
+8e10bc2c26653126c76f099a63dab23b  libgcc1_4.9.2-10_amd64.deb
+391ae724457378c71fb16fb5d8eb232c  libstdc++6_4.9.2-10_amd64.deb"
+sha256sums="e275f83088465d13b9db962c0a50d0d3b9df4f9bfcf61e0840af8da78efab852  libc6_2.19-18_amd64.deb
+a1402290165e8d91b396a33d79580a4501041e92bdb62ef23929a0c207cd9af9  libgcc1_4.9.2-10_amd64.deb
+f1509bbabd78e89c861de16931aec5988e1215649688fd4f8dfe1af875a7fbef  libstdc++6_4.9.2-10_amd64.deb"
+sha512sums="eda6716af3519f04d06ad5c50adce3907a62eed8237cc48acd9c341dcbb8dd0803160a84ef9ec96d52fc75fba0d01442309d64307d8ef18aa3fc353fa8179cf4  libc6_2.19-18_amd64.deb
+73ed9c7655896bb3d68e489add1442f3bb748677cf10213cbb890c9bdb5656bee2b72e274c1a55291b759b1b5952ae018eef5dba8c9f3f08502e922bf20d0a8c  libgcc1_4.9.2-10_amd64.deb
+12ecb23e2d616bf4e78c71614dd6bf7791c7cf2bb16dcb6f33b07cceaf3d9b3c7fab78e151d5afe237c70128ce76f865db816d7308562e3f6fb06bc3b9568dfd  libstdc++6_4.9.2-10_amd64.deb"

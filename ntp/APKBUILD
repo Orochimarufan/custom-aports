@@ -1,0 +1,64 @@
+# $Id$
+# Maintainer: Gaetan Bisson <bisson@archlinux.org>
+# Contributor: kevin <kevin@archlinux.org>
+
+pkgname=ntp
+_pkgname=ntp #-dev
+_pkgver=4.2.8p2
+pkgver="`echo $_pkgver | sed s/p/.p/`"
+pkgrel=1
+
+pkgdesc='Network Time Protocol reference implementation'
+url='http://www.ntp.org/'
+license='custom'
+
+arch='i686 x86_64'
+depends=
+
+depends_dev='openssl-dev libcap-dev libedit-dev'
+makedepends="$depends_dev"
+
+backup='etc/ntp.conf'
+
+#source=("http://www.eecis.udel.edu/~ntp/ntp_spool/ntp4/${_pkgname}/${_pkgname}-${_pkgver}.tar.gz"
+source="http://www.eecis.udel.edu/~ntp/ntp_spool/ntp4/${_pkgname}-${_pkgver}.tar.gz
+        ntp.conf
+        ntp.initd"
+
+options='!emptydirs'
+install=
+
+build() {
+	cd "${srcdir}/${_pkgname}-${_pkgver}"
+
+	./configure \
+		--prefix=/usr \
+		--libexecdir=/usr/lib \
+		--enable-linuxcaps \
+		--enable-ntp-signd \
+
+	make
+}
+
+package() {
+	cd "${srcdir}/${_pkgname}-${_pkgver}"
+
+	make DESTDIR="${pkgdir}" install
+
+    install -Dm755 ../ntp.initd "${pkgdir}"/etc/init.d/ntp
+	install -Dm644 ../ntp.conf "${pkgdir}"/etc/ntp.conf
+	install -Dm644 COPYRIGHT "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+
+	install -d -o 87 "${pkgdir}"/var/lib/ntp
+	echo > "${pkgdir}/var/lib/ntp/.placeholder"
+}
+
+md5sums="fa37049383316322d060ec9061ac23a9  ntp-4.2.8p2.tar.gz
+97532c0347e29f1d6f9c51d89e2451f9  ntp.conf
+a5a2ba0e7464907b176cdad52a955c48  ntp.initd"
+sha256sums="0d69bc0e95caad43ea04fdad410e756bae1a71e67b1c2bd799b76b55e04c9b31  ntp-4.2.8p2.tar.gz
+abccefe0b3a65cd375d5071ce780be8d2d205439aa6d34bcd3c56de6e80ba821  ntp.conf
+671d691b96541f865b6019c5cba7848540df1bb89677e83ed15f4ff731e9c1b1  ntp.initd"
+sha512sums="7b39e4d8a362afd37dc57a742841fadcd4634bb1d21d59d72d484b759a867d82b90d8c77e6e104c73ec8690489b80b0f9e2e86e4dfcfa34a49621cee3dee16d0  ntp-4.2.8p2.tar.gz
+9767b0c4704ecf817ca086302a648d0c850704a34e7c2877d2a6802e79736a6fffab5607d2eae7e871bc9ac4d130ad1a2c88aa02ed709ee42a768f6a3025cd27  ntp.conf
+60ef9e776cd0cc7ec0eab26fd7b7364e13604b0c2e274a68f962684ecb004d433787ff61a002351408cc0aac300855a72045eb44d51117290c77bce4092ad7b7  ntp.initd"

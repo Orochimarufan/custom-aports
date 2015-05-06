@@ -1,0 +1,12 @@
+#!/sbin/runscript
+
+name="Network Time Service"
+command="/usr/bin/ntpd"
+command_args="-g -u ntp:ntp"
+
+depend() {
+    need net
+    provide ntp-client ntp-server
+    use dns
+}
+

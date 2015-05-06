@@ -1,0 +1,5 @@
+#!/bin/sh
+addgroup -S plex 2>/dev/null
+adduser -S -G plex -h /var/lib/plex -H -s /bin/false -D plex 2>/dev/null
+exit 0
+
