@@ -20,6 +20,7 @@ Changes to official packages
 New packages
 ------------
 * ntp :: [The Network Time Protocol reference implementation][ntp]
+ - Supports signed ntp (Required for Samba4 Active Directory)
 * patchelf :: [A tool for modifying ELF executables][patchelf]
 * glibc-runtime :: A package with [libc6][deb-libc6], [libgcc1][deb-libgcc1] and [libstdc++6][deb-libstdc++6] from Debian Jessie
  - Useful for running proprietary binary blobs that bring everything except very low-level system libraries
