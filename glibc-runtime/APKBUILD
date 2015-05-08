@@ -1,5 +1,7 @@
 # Maintainer: Taeyeon Mori <orochimarufan.x3@gmail.com>
 
+# vim: sw=4 ts=4 et:
+
 pkgname=glibc-runtime
 pkgver=2.19
 pkgrel=0
@@ -18,7 +20,7 @@ debs="libc6 libgcc1 libstdc++6"
 
 _builddir="$srcdir"
 prepare() {
-	cd "$_builddir"
+    cd "$_builddir"
     for pkg in $debs; do
         mkdir $pkg
         cd $pkg
@@ -29,11 +31,11 @@ prepare() {
 }
 
 build() {
-	cd "$_builddir"
+    cd "$_builddir"
 }
 
 package() {
-	cd "$_builddir"
+    cd "$_builddir"
     _destdir="$pkgdir/glibc/lib"
     install -dm 755 "$_destdir"
 

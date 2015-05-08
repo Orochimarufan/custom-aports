@@ -1,5 +1,7 @@
 # Maintainer: Taeyeon Mori <orochimarufan.x3@gmail.com>
 
+# vim: noet:
+
 pkgname=patchelf
 pkgver=0.8
 pkgrel=0
@@ -13,14 +15,14 @@ source="$pkgname-$pkgver.tar.gz::https://github.com/NixOS/patchelf/archive/${pkg
 _builddir="$srcdir/$pkgname-$pkgver"
 build() {
 	cd "$_builddir"
-    ./bootstrap.sh || return 1
-    ./configure --prefix=/usr || return 1
-    make || return 1
+	./bootstrap.sh || return 1
+	./configure --prefix=/usr || return 1
+	make || return 1
 }
 
 package() {
 	cd "$_builddir"
-    make install DESTDIR="$pkgdir" || return 1
+	make install DESTDIR="$pkgdir" || return 1
 }
 
 md5sums="c7b54e191010d197b45067718336b1b1  patchelf-0.8.tar.gz"

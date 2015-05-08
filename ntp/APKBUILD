@@ -1,6 +1,9 @@
-# $Id$
-# Maintainer: Gaetan Bisson <bisson@archlinux.org>
+# Maintainer: Taeyeon Mori <orochimarufan.x3@gmail.com>
+# Original ABS Package
+# Contributor: Gaetan Bisson <bisson@archlinux.org>
 # Contributor: kevin <kevin@archlinux.org>
+
+# vim: noet:
 
 pkgname=ntp
 _pkgname=ntp #-dev
@@ -20,7 +23,7 @@ makedepends="$depends_dev"
 
 backup='etc/ntp.conf'
 
-#source=("http://www.eecis.udel.edu/~ntp/ntp_spool/ntp4/${_pkgname}/${_pkgname}-${_pkgver}.tar.gz"
+#source="http://www.eecis.udel.edu/~ntp/ntp_spool/ntp4/${_pkgname}/${_pkgname}-${_pkgver}.tar.gz
 source="http://www.eecis.udel.edu/~ntp/ntp_spool/ntp4/${_pkgname}-${_pkgver}.tar.gz
         ntp.conf
         ntp.initd"
@@ -45,11 +48,11 @@ package() {
 
 	make DESTDIR="${pkgdir}" install
 
-    install -Dm755 ../ntp.initd "${pkgdir}"/etc/init.d/ntp
+	install -Dm755 ../ntp.initd "${pkgdir}"/etc/init.d/ntp
 	install -Dm644 ../ntp.conf "${pkgdir}"/etc/ntp.conf
 	install -Dm644 COPYRIGHT "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 
-	install -d -o 87 "${pkgdir}"/var/lib/ntp
+	install -d -o ntp "${pkgdir}"/var/lib/ntp
 	echo > "${pkgdir}/var/lib/ntp/.placeholder"
 }
 

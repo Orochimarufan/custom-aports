@@ -1,5 +1,8 @@
 # Contributor: Carlo Landmeter <clandmeter@gmail.com>
 # Maintainer: Natanael Copa <ncopa@alpinelinux.org>
+
+# vim: noet:
+
 pkgname=bind
 pkgver=9.10.2
 _ver=${pkgver%_p*}
