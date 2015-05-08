@@ -23,7 +23,7 @@ New packages
  - Supports signed ntp (Required for Samba4 Active Directory)
 * patchelf :: [A tool for modifying ELF executables][patchelf]
 * glibc-runtime :: A package with [libc6][deb-libc6], [libgcc1][deb-libgcc1] and [libstdc++6][deb-libstdc++6] from Debian Jessie
- - Useful for running proprietary binary blobs that bring everything except very low-level system libraries
+ - Useful for running proprietary binary blobs that bring everything except libc & co
  - Should be treated as a last resort!
 * plex-media-server :: [Plex][plex]'s solution to share your content throughout the household and beyond
  - Proprietary blob
