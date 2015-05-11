@@ -8,7 +8,7 @@ pkgver=9.10.2
 _ver=${pkgver%_p*}
 _p=${pkgver#*_p}
 [ "$_p" != "$pkgver" ] && _ver="${_ver}-P$_p"
-pkgrel=1
+pkgrel=2
 pkgdesc="The Berkeley Internet Name Domain Name Server and tools"
 url="http://www.isc.org"
 arch="all"
@@ -16,7 +16,7 @@ license="MIT BSD"
 depends=""
 pkgusers="named"
 pkggroups="named"
-makedepends="openssl-dev perl linux-headers bsd-compat-headers"
+makedepends="openssl-dev perl linux-headers bsd-compat-headers krb5-dev"
 install="$pkgname.pre-install"
 subpackages="$pkgname-doc $pkgname-dev $pkgname-libs $pkgname-tools"
 source="http://ftp.isc.org/isc/bind9/${_ver}/bind-${_ver}.tar.gz
@@ -59,6 +59,7 @@ build() {
 		--localstatedir=/var \
 		--with-openssl=/usr \
 		--without-libxml2 \
+		--with-gssapi \
 		--enable-threads \
 		--enable-filter-aaaa \
 		--enable-ipv6 \

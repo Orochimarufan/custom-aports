@@ -10,6 +10,7 @@ Changes to official packages
 ----------------------------
 * BIND
  - Enable building with support for Linux capabilities (no --disable-linux-caps)
+ - Enable GSS API support (--with-gssapi)
 * MPD (Music Player Daemon)
  - Build with support for FFmpeg
  - Build with support for pulseaudio
