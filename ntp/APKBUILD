@@ -7,29 +7,29 @@
 
 pkgname=ntp
 _pkgname=ntp #-dev
-_pkgver=4.2.8p2
-pkgver="`echo $_pkgver | sed s/p/.p/`"
+pkgver=4.2.8_p2
+_pkgver="`echo $pkgver | sed s/_p/p/`"
 pkgrel=1
 
 pkgdesc='Network Time Protocol reference implementation'
 url='http://www.ntp.org/'
 license='custom'
 
-arch='i686 x86_64'
+arch='all'
 depends=
 
 depends_dev='openssl-dev libcap-dev libedit-dev'
 makedepends="$depends_dev"
 
-backup='etc/ntp.conf'
-
 #source="http://www.eecis.udel.edu/~ntp/ntp_spool/ntp4/${_pkgname}/${_pkgname}-${_pkgver}.tar.gz
 source="http://www.eecis.udel.edu/~ntp/ntp_spool/ntp4/${_pkgname}-${_pkgver}.tar.gz
-        ntp.conf
-        ntp.initd"
+		ntp.conf
+		ntp.initd"
 
 options='!emptydirs'
 install=
+
+subpackages="$pkgname-doc"
 
 build() {
 	cd "${srcdir}/${_pkgname}-${_pkgver}"
@@ -48,12 +48,42 @@ package() {
 
 	make DESTDIR="${pkgdir}" install
 
+	# Clean up empty dirs
+	rmdir "${pkgdir}/usr/lib/pkgconfig"
+	rmdir "${pkgdir}/usr/lib"
+	rmdir "${pkgdir}/usr/sbin"
+	rmdir "${pkgdir}/usr/include/event2"
+	rmdir "${pkgdir}/usr/include"
+
 	install -Dm755 ../ntp.initd "${pkgdir}"/etc/init.d/ntp
 	install -Dm644 ../ntp.conf "${pkgdir}"/etc/ntp.conf
 	install -Dm644 COPYRIGHT "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 
 	install -d -o ntp "${pkgdir}"/var/lib/ntp
 	echo > "${pkgdir}/var/lib/ntp/.placeholder"
+}
+
+pull() {
+	# pull <dir> <files...>
+	# move $pkgdir/<dir>/<files...> to $subpkgdir/<dir>
+	_dir="$1"
+	shift
+
+	mkdir -p "$subpkgdir/$_dir" || return 1
+
+	for i in "$@"; do
+		mv "$pkgdir/$_dir"/$i "$subpkgdir/$_dir" || return 1
+	done
+}
+
+doc() {
+	pkgdesc="Network Time Protocol reference documentation"
+	depends=
+	arch=noarch
+
+	pull usr/share man \
+				   doc \
+		|| return 1
 }
 
 md5sums="fa37049383316322d060ec9061ac23a9  ntp-4.2.8p2.tar.gz
