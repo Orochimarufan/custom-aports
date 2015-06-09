@@ -1,5 +1,7 @@
 # Maintainer: Taeyeon Mori <orochimarufan.x3@gmail.com>
-# vim: ts=2 sw=2 et:
+
+# vim: set ts=2 sw=2 et:
+# vim: set ft=sh:
 
 pkgname=plex-media-server
 pkgver=0.9.12.3.1173

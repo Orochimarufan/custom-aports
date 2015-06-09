@@ -1,6 +1,7 @@
 # Maintainer: Taeyeon Mori <orochimarufan.x3@gmail.com>
 
-# vim: noet:
+# vim: set noet:
+# vim: set ft=sh:
 
 pkgname=patchelf
 pkgver=0.8

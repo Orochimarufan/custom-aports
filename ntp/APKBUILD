@@ -3,7 +3,8 @@
 # Contributor: Gaetan Bisson <bisson@archlinux.org>
 # Contributor: kevin <kevin@archlinux.org>
 
-# vim: noet:
+# vim: set noet:
+# vim: set ft=sh:
 
 pkgname=ntp
 _pkgname=ntp #-dev

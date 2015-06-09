@@ -2,7 +2,8 @@
 # Contributor: Sebastian Wicki <gandro@gmx.net>
 # Maintainer: Natanael Copa <ncopa@alpinelinux.org>
 
-# vim: noet:
+# vim: set noet:
+# vim: set ft=sh:
 
 pkgname=mpd
 pkgver=0.19.9

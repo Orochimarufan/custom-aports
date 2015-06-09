@@ -1,6 +1,7 @@
 # Maintainer: Taeyeon Mori <orochimarufan.x3@gmail.com>
 
-# vim: sw=4 ts=4 et:
+# vim: set sw=4 ts=4 et:
+# vim: set ft=sh:
 
 pkgname=glibc-runtime
 pkgver=2.19
