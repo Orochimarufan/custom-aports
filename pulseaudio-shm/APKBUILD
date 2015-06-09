@@ -1,0 +1,133 @@
+# Contributor: Carlo Landmeter <clandmeter@gmail.com>
+# Contributor: Stuart Cardall <developer@it-offshore.co.uk>
+# Maintainer: Taeyeon Mori <orochimarufan.x3@gmail.com>
+
+# vim: sw=4 ts=4 et:
+# vim: ft=sh:
+
+pkgname=pulseaudio-shm
+pkgver=6.0
+pkgrel=3
+arch=all
+
+conflicts="pulseaudio"
+replaces="pulseaudio"
+depends="pulseaudio-libs"
+
+pkgdesc="A featureful, general-purpose sound server (dangerously shm-enabled version)"
+url="http://www.freedesktop.org/wiki/Software/PulseAudio"
+license="LGPL"
+
+depends_dev="libcap-dev json-c-dev libsndfile-dev dbus-dev alsa-lib-dev tdb-dev"
+makedepends="$depends_dev m4 libtool intltool
+             udev-dev dbus-dev speex-dev orc-dev libasyncns-dev speexdsp-dev fftw-dev"
+
+source="http://freedesktop.org/software/pulseaudio/releases/pulseaudio-$pkgver.tar.gz
+    pulseaudio.initd
+    pulseaudio.confd
+    shm.patch
+    "
+
+prepare() {
+    cd "$srcdir/pulseaudio-$pkgver"
+
+    patch -p1 <"$srcdir/shm.patch"
+}
+
+build() {
+    cd "$srcdir/pulseaudio-$pkgver"
+
+    # Disable all modules that get split into subpackages
+    # Use the ones built by the pulseaudio package.
+    ./configure --build=$CBUILD \
+        --host=$CHOST \
+        --prefix=/usr \
+        --sysconfdir=/etc \
+        --libexecdir=/usr/lib \
+        --localstatedir=/var \
+        --disable-glib2 --disable-gtk3 --disable-gconf --disable-avahi --disable-x11 \
+        --disable-jack --disable-xen \
+        --disable-oss-wrapper \
+        --disable-rpath \
+        --disable-default-build-tests \
+        || return 1
+    
+    # fight unused direct deps
+    sed -i -e "s/ -shared / -Wl,-O1,--as-needed\0/g" libtool
+
+    make LDFLAGS+="-lintl" || return 1
+}
+
+package() {
+    cd "$srcdir/pulseaudio-$pkgver"
+
+    make -j1 DESTDIR="$pkgdir" install \
+        bashcompletiondir=/usr/share/bash-completion/completions || return 1
+
+    rm -rf "$pkgdir"/etc/dbus-1
+
+    # libtool files
+    find "$pkgdir/usr/lib" -name '*.la' -delete
+
+    install -D -m755 "$srcdir"/pulseaudio.initd \
+        "$pkgdir"/etc/init.d/pulseaudio || return 1
+    install -D -m644 "$srcdir"/pulseaudio.confd \
+        "$pkgdir"/etc/conf.d/pulseaudio || return 1
+
+    # Remove things that get put into subpackages by the original pulseaudio APKBUILD
+    remove_subpkgs
+}
+
+
+
+remove_subpkgs() {
+    msg Removing files provided by pulseaudio-* subpackages
+    (
+        local XDIR="$pkgdir"
+
+        . $srcdir/../../pulseaudio/APKBUILD # HACK
+
+        pkgdir="$XDIR"
+
+        pull() {
+            local _dir="$1"
+            shift
+
+            for i in "$@"; do
+                rm -rf "$pkgdir/$_dir"/$i
+            done
+
+            while rmdir "$pkgdir/$_dir" 2>/dev/null; do
+                _dir="`dirname "$_dir"`"
+            done
+        }
+
+        doc() {
+            pull usr/share man info
+        }
+
+        dev() {
+            pull usr include
+            pull usr/lib cmake pkgconfig
+            pull usr/share vala
+        }
+
+        for subpkg in `echo $subpackages | sed -e 's/pulseaudio-//g'`; do
+            subpkgdir=/dev/null
+            $subpkg
+        done
+    )
+}
+
+md5sums="1822a93710dfe42e266102e92a8d2993  pulseaudio-6.0.tar.gz
+884cb9a843361844904e8c85542e72fb  pulseaudio.initd
+bf7487ba2c48fc8a56bca41c97a18934  pulseaudio.confd
+f723e4caf9deea7e00843795550a8517  shm.patch"
+sha256sums="5a5d2b90e1d755590060f429cad492190d31664bd3987350dfab35347e4bef83  pulseaudio-6.0.tar.gz
+bbd37d052962ddbf6ae633e4e3896da292d3e916a9123558a9b973096dda842d  pulseaudio.initd
+c03661e8cc902d27ff6b52f291207f2b008957571b942abdd92a873a52aae0dd  pulseaudio.confd
+3e73a8831b5cea28e273db4a9e138817ca2a24ac5c76e0fd4dd3e360289dc011  shm.patch"
+sha512sums="241d464c075ec9c26bed71e9b1cc04e70eb624cd73c6b620defe3e70d93b644949de317b4d42384f5e4e9a829c68723815a2c7b18a3d404bb5c5e004075aacaf  pulseaudio-6.0.tar.gz
+34fe54ece5df60ce63a7955cd828a2716670fef71f40960698ae5518fdaf9cd599f4d8f8852e2c88d715600a9ad06a38984415e5eb320071012e5eb6e5c1b8b1  pulseaudio.initd
+75b54581591519d63a3362b155c0f9b0501a60763ab394693a456c44d0216138cf3a40bdd0f7442028663bc045e9ffee286f8f8eaf2ee3bb17379b43615fee0e  pulseaudio.confd
+1df10ec9d6ceda91ea8be656449b51cc302e851969e71403de4d0c3003430f908a84d8723a6e73eb59d7c3e0d6a4c6c6896f9499c84c4fa2e67290f6502f84b4  shm.patch"

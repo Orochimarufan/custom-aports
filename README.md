@@ -17,6 +17,7 @@ Changes to official packages
 * PulseAudio
  - Resurrected from unmaintained
  - Updated to v6.0
+ - Split into subpackages to minimize dependencies
 
 New packages
 ------------
@@ -29,6 +30,10 @@ New packages
 * plex-media-server :: [Plex][plex]'s solution to share your content throughout the household and beyond
  - Proprietary blob
  - Uses glibc-runtime
+* pulseaudio-shm :: PulseAudio build with the global SHM protection disabled
+ - Only EVER use if you know what you're doing.
+ - Don't go crying to the devs if it breaks, they'll kill you for even attempting this.
+ - You've been warned.
 
 [ntp]: http://ntp.org
 [patchelf]: https://nixos.org/patchelf.html

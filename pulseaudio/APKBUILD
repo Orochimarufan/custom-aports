@@ -7,7 +7,7 @@
 
 pkgname=pulseaudio
 pkgver=6.0
-pkgrel=2
+pkgrel=3
 arch=all
 
 pkgdesc="A featureful, general-purpose sound server"
@@ -107,7 +107,7 @@ pull() {
 
     # Clean up empty dirs in main package
     while rmdir "$pkgdir/$_dir" 2>/dev/null; do
-        _dir="`basename "$_dir"`"
+        _dir="`dirname "$_dir"`"
     done
 }
 
@@ -166,6 +166,9 @@ x11() {
                                        module-x11-publish.so \
                                        module-x11-xsmp.so \
                                        module-x11-cork-request.so \
+        || return 1
+
+    pull etc xdg \
         || return 1
 }
 

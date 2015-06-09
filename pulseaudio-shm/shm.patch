@@ -1,0 +1,14 @@
+--- pulseaudio-6.0-orig/src/daemon/main.c
++++ pulseaudio-6.0/src/daemon/main.c
+@@ -715,8 +715,9 @@
+         pa_log_warn(_("Running in system mode, but --disallow-module-loading not set!"));
+ 
+     if (conf->system_instance && !conf->disable_shm) {
+-        pa_log_notice(_("Running in system mode, forcibly disabling SHM mode!"));
+-        conf->disable_shm = true;
++        //pa_log_notice(_("Running in system mode, forcibly disabling SHM mode!"));
++        //conf->disable_shm = true;
++        pa_log_warn("Running in system mode with SHM enabled");
+     }
+ 
+     if (conf->system_instance && conf->exit_idle_time >= 0) {
