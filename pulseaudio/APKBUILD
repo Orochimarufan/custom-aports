@@ -6,8 +6,8 @@
 
 pkgname=pulseaudio
 pkgver=6.0
-pkgrel=0
-arch=x86_64
+pkgrel=1
+arch=all
 
 pkgdesc="A featureful, general-purpose sound server"
 url="http://www.freedesktop.org/wiki/Software/PulseAudio"
@@ -18,7 +18,6 @@ options="!libtool"
 depends=""
 
 depends_dev="
-    glib-dev
     json-c-dev
     libsndfile-dev
     tdb-dev
@@ -51,7 +50,7 @@ makedepends="
 
 install=""
 
-subpackages="$pkgname-dev $pkgname-libs"
+subpackages="$pkgname-libs $pkgname-clients $pkgname-doc $pkgname-dev"
 
 source="http://freedesktop.org/software/pulseaudio/releases/pulseaudio-$pkgver.tar.gz
     $pkgname.initd
@@ -84,8 +83,7 @@ build() {
     sed -i -e "s/ -shared / -Wl,-O1,--as-needed\0/g" libtool
 
     # We need to set some defines because of musl differences (for now)
-    # __WORDSIZE is in bits/wordsize.h, included from limits.h in glibc
-    make V=0 LDFLAGS+="-lintl" CFLAGS+="-D__WORDSIZE=64" || return 1
+    make V=0 LDFLAGS+="-lintl" || return 1
 }
 
 package() {
@@ -120,18 +118,10 @@ pull() {
 
 
 libs() {
-    pkgdesc="Pulseaudio libraries"
+    pkgdesc="PulseAudio libraries"
     depends=""
 
     pull etc/pulse client.conf \
-        || return 1
-    
-    pull usr/bin pacat \
-                 pactl \
-                 pamon \
-                 paplay \
-                 parec \
-                 parecord \
         || return 1
 
     pull usr/lib libpulsecore-*.so \
@@ -140,31 +130,21 @@ libs() {
                  libpulse-mainloop-glib.so* \
                  pulseaudio/ \
         || return 1
-
-    pull usr/share bash-completion \
-        || return 1
-
-    pull usr/share/man/man1 pacat.1 \
-                            pactl.1 \
-                            paplay.1 \
-        || return 1
-
-    pull usr/share/man/man5 pulse-client.conf.5 \
-        || return 1
 }
 
-dev() {
-    pkgdesc="Pulseaudio development files"
+clients() {
+    pkgdesc="PulseAudio CLI client tools"
     depends=""
 
-    pull usr/lib cmake/ \
-                 pkgconfig/ \
+    pull usr/bin pacat \
+                 pactl \
+                 pamon \
+                 paplay \
+                 parec \
+                 parecord \
         || return 1
 
-    pull usr include/ \
-        || return 1
-
-    pull usr/share vala/ \
+    pull usr/share bash-completion \
         || return 1
 }
 
