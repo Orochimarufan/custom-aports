@@ -6,84 +6,70 @@
 
 pkgname=pulseaudio
 pkgver=6.0
-pkgrel=1
+pkgrel=2
 arch=all
 
 pkgdesc="A featureful, general-purpose sound server"
 url="http://www.freedesktop.org/wiki/Software/PulseAudio"
-license="LGPL AGPL3"
-
-options="!libtool"
+license="LGPL"
 
 depends=""
-
-depends_dev="
-    json-c-dev
-    libsndfile-dev
-    tdb-dev
-    udev-dev
-    dbus-dev
-    speex-dev
-    bluez-dev
-    gconf-dev
-    avahi-dev
-    gtk+3.0-dev
-    libsamplerate-dev
-    openssl-dev
-    alsa-lib-dev
-    jack-dev
-    check-dev
-    orc-dev
-    libasyncns-dev
-    fftw-dev
-    libice-dev
-    libsm-dev
-    libcap-dev
-    speexdsp-dev"
-
-makedepends="
-    $depends_dev
-    autoconf
-    automake
-    libtool
-    intltool"
+depends_dev="libcap-dev json-c-dev libsndfile-dev dbus-dev alsa-lib-dev tdb-dev"
+makedepends="$depends_dev m4 libtool intltool
+             udev-dev dbus-dev speex-dev gconf-dev avahi-dev gtk+3.0-dev xen-dev
+             jack-dev orc-dev libasyncns-dev speexdsp-dev fftw-dev libice-dev libsm-dev"
 
 install=""
 
-subpackages="$pkgname-libs $pkgname-clients $pkgname-doc $pkgname-dev"
+subpackages="$pkgname-libs $pkgname-utils $pkgname-doc $pkgname-dev $pkgname-glib
+             $pkgname-gconf $pkgname-zeroconf $pkgname-xen
+             $pkgname-jack $pkgname-equalizer $pkgname-x11"
 
 source="http://freedesktop.org/software/pulseaudio/releases/pulseaudio-$pkgver.tar.gz
+    0001-padsp-Make-it-compile-on-musl.patch
     $pkgname.initd
     $pkgname.confd
     "
 
+# Features missing on Alpine (TODO):
+#   - lirc obviously requires a working build of lirc
+#   - bluez5 requires the sbc codec
+#   - A ton of useless direct dependencies (happens on other distros too?)
+
 prepare() {
     cd "$srcdir/pulseaudio-$pkgver"
+
+    local i
+    for i in $source; do
+        case $i in
+        *.patch) msg "Applying $i"; patch -p1 -i "$srcdir"/$i || return 1
+        esac
+    done
 }
 
 build() {
     cd "$srcdir/pulseaudio-$pkgver"
 
-    ./configure --build=$CBUILD \
+    ./configure \
+        --build=$CBUILD \
         --host=$CHOST \
         --prefix=/usr \
         --sysconfdir=/etc \
         --libexecdir=/usr/lib \
         --localstatedir=/var \
-        --with-udev-rules-dir=/usr/lib/udev/rules.d \
-        --with-database=tdb \
-        --disable-tcpwrap \
-        --disable-bluez4 \
-        --disable-oss-wrapper \
+        --mandir=/usr/share/man \
+        --infodir=/usr/share/info \
+        --enable-alsa --enable-esound --enable-glib2 --enable-gtk3 --enable-gconf --enable-avahi \
+        --enable-jack --enable-asyncns --enable-dbus --enable-udev --enable-xen --enable-orc \
+        --disable-bluez4 --disable-samplerate --disable-tcpwrap \
         --disable-rpath \
         --disable-default-build-tests \
         || return 1
-    
+
     # fight unused direct deps
     sed -i -e "s/ -shared / -Wl,-O1,--as-needed\0/g" libtool
 
-    # We need to set some defines because of musl differences (for now)
-    make V=0 LDFLAGS+="-lintl" || return 1
+    make LDFLAGS="-lintl" || return 1
 }
 
 package() {
@@ -106,13 +92,21 @@ package() {
 pull() {
     # pull <dir> <files...>
     # move $pkgdir/<dir>/<files...> to $subpkgdir/<dir>
-    _dir="$1"
+    local _dir="$1"
     shift
 
+    # create dir in subpackage
     mkdir -p "$subpkgdir/$_dir" || return 1
 
+    # Move files to subpackage
+    local i
     for i in "$@"; do
         mv "$pkgdir/$_dir"/$i "$subpkgdir/$_dir" || return 1
+    done
+
+    # Clean up empty dirs in main package
+    while rmdir "$pkgdir/$_dir" 2>/dev/null; do
+        _dir="`basename "$_dir"`"
     done
 }
 
@@ -127,33 +121,118 @@ libs() {
     pull usr/lib libpulsecore-*.so \
                  libpulse.so* \
                  libpulse-simple.so* \
-                 libpulse-mainloop-glib.so* \
                  pulseaudio/ \
         || return 1
 }
 
-clients() {
-    pkgdesc="PulseAudio CLI client tools"
+utils() {
+    pkgdesc="PulseAudio command line utilities"
     depends=""
 
     pull usr/bin pacat \
+                 pacmd \
                  pactl \
                  pamon \
                  paplay \
                  parec \
                  parecord \
+                 pax11publish \
+                 padsp \
+                 pasuspender \
         || return 1
 
     pull usr/share bash-completion \
         || return 1
 }
 
+glib() {
+    pkgdesc="GLib 2.0 bindings for PulseAudio"
+    depends=""
+
+    pull usr/lib libpulse-mainloop-glib.so* \
+        || return 1
+}
+
+# -------------- Modules ----------------
+x11() {
+    pkgdesc="X11 support for PulseAudio"
+    depends=""
+
+    pull usr/bin start-pulseaudio-x11 \
+        || return 1
+
+    pull usr/lib/pulse-$pkgver/modules module-x11-bell.so \
+                                       module-x11-publish.so \
+                                       module-x11-xsmp.so \
+                                       module-x11-cork-request.so \
+        || return 1
+}
+
+
+gconf() {
+    pkgdesc="GConf support for PulseAudio"
+    depends=""
+
+    pull usr/lib/pulse-$pkgver/modules module-gconf.so \
+        || return 1
+
+    pull usr/lib/pulse gconf-helper \
+        || return 1
+}
+
+zeroconf() {
+    pkgdesc="Zeroconf support for PulseAudio"
+    depends=""
+
+    pull usr/lib/pulse-$pkgver/modules libavahi-wrap.so \
+                                       module-zeroconf-publish.so \
+                                       module-zeroconf-discover.so \
+                                       libraop.so \
+                                       module-raop-discover.so \
+                                       module-raop-sink.so \
+        || return 1
+}
+
+xen() {
+    pkgdesc="Xen support for PulseAudio"
+    depends=""
+    license="GPL2"
+
+    pull usr/lib/pulse-$pkgver/modules module-xenpv-sink.so \
+        || return 1
+}
+
+jack() {
+    pkgdesc="Jack support for PulseAudio"
+    depends=""
+
+    pull usr/lib/pulse-$pkgver/modules module-jack-sink.so \
+                                       module-jack-source.so \
+                                       module-jackdbus-detect.so \
+        || return 1
+}
+
+equalizer() {
+    pkgdesc="Equalizer for PulseAudio"
+    depends="py-qt py-dbus"
+    license="AGPL3"
+
+    pull usr/lib/pulse-$pkgver/modules module-equalizer-sink.so \
+        || return 1
+
+    pull usr/bin qpaeq \
+        || return 1
+}
+
 md5sums="1822a93710dfe42e266102e92a8d2993  pulseaudio-6.0.tar.gz
+ac9d7f4c6cca22d349aaa7649d47a6e3  0001-padsp-Make-it-compile-on-musl.patch
 884cb9a843361844904e8c85542e72fb  pulseaudio.initd
 bf7487ba2c48fc8a56bca41c97a18934  pulseaudio.confd"
 sha256sums="5a5d2b90e1d755590060f429cad492190d31664bd3987350dfab35347e4bef83  pulseaudio-6.0.tar.gz
+4c4af58f0f5f00230407f71e6ee3fa33b923feb12dfbc5ddad2075ab6a3ed234  0001-padsp-Make-it-compile-on-musl.patch
 bbd37d052962ddbf6ae633e4e3896da292d3e916a9123558a9b973096dda842d  pulseaudio.initd
 c03661e8cc902d27ff6b52f291207f2b008957571b942abdd92a873a52aae0dd  pulseaudio.confd"
 sha512sums="241d464c075ec9c26bed71e9b1cc04e70eb624cd73c6b620defe3e70d93b644949de317b4d42384f5e4e9a829c68723815a2c7b18a3d404bb5c5e004075aacaf  pulseaudio-6.0.tar.gz
+b120d45ddbfe07b1fbbe821f6b6a515a7970a03577e3335e5961f61cbc2596e5d5924aff9c359dddd64f316e62518cd6641cdc113cb25703b1c81294e625e938  0001-padsp-Make-it-compile-on-musl.patch
 34fe54ece5df60ce63a7955cd828a2716670fef71f40960698ae5518fdaf9cd599f4d8f8852e2c88d715600a9ad06a38984415e5eb320071012e5eb6e5c1b8b1  pulseaudio.initd
 75b54581591519d63a3362b155c0f9b0501a60763ab394693a456c44d0216138cf3a40bdd0f7442028663bc045e9ffee286f8f8eaf2ee3bb17379b43615fee0e  pulseaudio.confd"
