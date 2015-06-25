@@ -4,8 +4,8 @@
 # vim: set ft=sh:
 
 pkgname=plex-media-server
-pkgver=0.9.12.3.1173
-_pkgsum=937aac3
+pkgver=0.9.12.4.1192
+_pkgsum=9a47d21
 pkgrel=0
 pkgdesc='Plex Media Server'
 arch='x86_64 x86'
@@ -80,21 +80,26 @@ md5sums="95ac928f91ad4a2e4e9d7f5f8df59a7f  plex-media-server.confd
 e1b4f8dde8130eae952fc8fbd07e13b8  plex-media-server.initd
 bd703bc750b989a27edd590eb8c8e9d7  terms.txt
 5312ec0cbac46f2c696c80ccaf2e820c  start_pms.patch"
-md5sums_x86_64="5248c49ed26bb3ed0abd56c955a3244b  plexmediaserver_0.9.12.3.1173-937aac3_amd64.deb"
-md5sums_x86="98d7ff01c818bb1ff06250ee855eabf8  plexmediaserver_0.9.12.3.1173-937aac3_i386.deb"
+md5sums_x86_64="1b358c2520d49bf538039385c872ceb0  plexmediaserver_0.9.12.4.1192-9a47d21_amd64.deb"
+md5sums_x86="078e370278e429b24af3815327781dc4  plexmediaserver_0.9.12.4.1192-9a47d21_i386.deb"
 sha256sums="1dcedead56723f717edd69906c359362e639e20a369708951aba70aaec3c9dd2  plex-media-server.confd
 361e8dd09d841f12347a300de6363349c160d23bb96762c323f0bee1f765f4cf  plex-media-server.initd
 7bb97271eb2dc5d1dcb95f9763f505970d234df17f1b8d79b467b9020257915a  terms.txt
 d9fb2bcf554e0f3b9f0521bf7194713cf1e21cdb7004b756c9dd3fe73ad5c15f  start_pms.patch"
-sha256sums_x86_64="2fd8cb864133b2cbe2792eab767603ce3d30cd1300d3d12a19f2ae48567b2c44  plexmediaserver_0.9.12.3.1173-937aac3_amd64.deb"
-sha256sums_x86="3e21855815b79e11c64d1a5b153aa28ee668c44f8b07a40e377e8fedb3932afa  plexmediaserver_0.9.12.3.1173-937aac3_i386.deb"
+sha256sums_x86_64="e014827dcfc3bbf4e8a0f977f129296f57c75e8a324c488f1f09e027eb09d9cf  plexmediaserver_0.9.12.4.1192-9a47d21_amd64.deb"
+sha256sums_x86="cf52bffc27b2dc91f3caacc5314c5483f5804dedaf21c0c8de33bb859b026a5f  plexmediaserver_0.9.12.4.1192-9a47d21_i386.deb"
 sha512sums="97043d00ab18fc5c4b64347e5a7caf99323444f3d5b697cab53eff1b58a0f5d97d86caff8ad02557890d26cce7c294a7ad09746439ead01070047e2231afb76c  plex-media-server.confd
 6b4222ccf6944a4c0211b0d04eedd704a9c8ef103cb5d286b209c0aa35eb00db3f4d46cc2e4143a5fc0cf7b8d6b014da6b78f589584930ad339074dcb20bd25c  plex-media-server.initd
 cfdf91251dbcfc4b16cd0242ee9c8fc749e02130d56d10c5e13425cfaf6530dfd7dee33ca85ff79630110b694ad77e5aeab2b94b4caf02276d01648201705ecc  terms.txt
 42977eba4066b21cde47d4fd7663a252c1726e95451b6fd0d483c7e337c2c09ba08caf700b6f72f6853190aaf9cfd130586d45f5e6c8e1ca64da3bf726a58fae  start_pms.patch"
-sha512sums_x86_64="1ae635cd2ccddc005c3192f9e01e0e2c9f84db490e0952f41cee524c6beffcae58401d4584e1fc0e15e1cbaa0ba358b35789bbdbad5e745d3b9ab6a0189862a4  plexmediaserver_0.9.12.3.1173-937aac3_amd64.deb"
-sha512sums_x86="9c1ebfed2e53e32b4ecc79ab20152f35b52ac9e08e3a4d8e5688b8bfe2f04d3664dfd7d44fc5b45e8b9b3754156fd102706279c53ead997cd977a118f10a5da2  plexmediaserver_0.9.12.3.1173-937aac3_i386.deb"
+sha512sums_x86_64="c4a9812e42fe4e0078d95df4a820dd359ec6fa82fb741ff7d30fe8074febbb74b3937bcb032d4207dec65ac14a622179bf08ac8cb7eddf814ed625302d7ba976  plexmediaserver_0.9.12.4.1192-9a47d21_amd64.deb"
+sha512sums_x86="b28dedfe8cc9ef41a412d279c67912083c2ecc09eb2eae41d0255bf04edd09c6103d23a9b9bc0df7584b9a20c5a44b70c1339eb829904a8fe99c2519c1ead829  plexmediaserver_0.9.12.4.1192-9a47d21_i386.deb"
 
+
+# ================= BEGIN MULTIARCH BINARY PACKAGE ============================
+# Important: remove *sums above before running abuild checksum!
+# Afterwards, move it from the bottom up and separate out the arch-dependent ones
+# as long as only one arch is supported, all of it can be safely ignored
 # Fix arch
 add_arch() {
   local var
@@ -102,9 +107,6 @@ add_arch() {
   eval "$1=\"\$$1\$2\$$var\""
 }
 
-# Important: remove *sums above before running abuild checksum!
-# Afterwards, move it from the bottom up and separate out the arch-dependent ones
-# as long as only one arch is supported, all of it can be safely ignored
 if [ "$1" = "checksum" ]; then
   # Create checksum for all sources!
   for _a in $arch; do
@@ -119,4 +121,5 @@ else
 " "$CARCH"
   done
 fi
+# ================== END MULTIARCH BINARY PACKAGE =============================
 
