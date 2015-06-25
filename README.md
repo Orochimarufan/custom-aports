@@ -9,15 +9,12 @@ This repository contains a number of custom build scripts for [![Alpine Linux][a
 Changes to official packages
 ----------------------------
 * BIND
- - Enable building with support for Linux capabilities (no --disable-linux-caps)
  - Enable GSS API support (--with-gssapi)
 * MPD (Music Player Daemon)
  - Build with support for FFmpeg
  - Build with support for pulseaudio
 * PulseAudio
- - Resurrected from unmaintained
- - Updated to v6.0
- - Split into subpackages to minimize dependencies
+ - Alternative version to package in testing
 
 New packages
 ------------

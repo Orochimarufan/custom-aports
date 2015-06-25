@@ -2,8 +2,8 @@
 # Contributor: Stuart Cardall <developer@it-offshore.co.uk>
 # Maintainer: Taeyeon Mori <orochimarufan.x3@gmail.com>
 
-# vim: sw=4 ts=4 et:
-# vim: ft=sh:
+# vim: set sw=4 ts=4 et:
+# vim: set ft=sh:
 
 pkgname=pulseaudio-shm
 pkgver=6.0
