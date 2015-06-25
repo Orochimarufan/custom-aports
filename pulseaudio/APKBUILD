@@ -7,7 +7,7 @@
 
 pkgname=pulseaudio
 pkgver=6.0
-pkgrel=3
+pkgrel=4
 arch=all
 
 pkgdesc="A featureful, general-purpose sound server"
@@ -18,12 +18,13 @@ depends=""
 depends_dev="libcap-dev json-c-dev libsndfile-dev dbus-dev alsa-lib-dev tdb-dev"
 makedepends="$depends_dev m4 libtool intltool
              udev-dev dbus-dev speex-dev gconf-dev avahi-dev gtk+3.0-dev xen-dev
-             jack-dev orc-dev libasyncns-dev speexdsp-dev fftw-dev libice-dev libsm-dev"
+             jack-dev orc-dev libasyncns-dev speexdsp-dev fftw-dev libice-dev libsm-dev
+             bluez-dev sbc-dev"
 
 install=""
 
 subpackages="$pkgname-libs $pkgname-utils $pkgname-doc $pkgname-dev $pkgname-glib
-             $pkgname-gconf $pkgname-zeroconf $pkgname-xen
+             $pkgname-gconf $pkgname-zeroconf $pkgname-xen $pkgname-bluetooth
              $pkgname-jack $pkgname-equalizer $pkgname-x11"
 
 source="http://freedesktop.org/software/pulseaudio/releases/pulseaudio-$pkgver.tar.gz
@@ -34,7 +35,6 @@ source="http://freedesktop.org/software/pulseaudio/releases/pulseaudio-$pkgver.t
 
 # Features missing on Alpine (TODO):
 #   - lirc obviously requires a working build of lirc
-#   - bluez5 requires the sbc codec
 #   - A ton of useless direct dependencies (happens on other distros too?)
 
 prepare() {
@@ -62,6 +62,7 @@ build() {
         --infodir=/usr/share/info \
         --enable-alsa --enable-esound --enable-glib2 --enable-gtk3 --enable-gconf --enable-avahi \
         --enable-jack --enable-asyncns --enable-dbus --enable-udev --enable-xen --enable-orc \
+        --enable-bluez5 \
         --disable-bluez4 --disable-samplerate --disable-tcpwrap \
         --disable-rpath \
         --disable-default-build-tests \
@@ -213,6 +214,18 @@ jack() {
     pull usr/lib/pulse-$pkgver/modules module-jack-sink.so \
                                        module-jack-source.so \
                                        module-jackdbus-detect.so \
+        || return 1
+}
+
+bluetooth() {
+    pkgdesc="Bluetooth support for PulseAudio"
+    depends=""
+
+    pull usr/lib/pulse-$pkgver/modules libbluez5-util.so \
+                                       module-bluetooth-discover.so \
+                                       module-bluetooth-policy.so \
+                                       module-bluez5-discover.so \
+                                       module-bluez5-device.so \
         || return 1
 }
 
