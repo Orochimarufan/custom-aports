@@ -1,6 +1,8 @@
 # Contributor: Łukasz Jendrysik <scadu@yandex.com>
 # Contributor: Sebastian Wicki <gandro@gmx.net>
-# Maintainer: Natanael Copa <ncopa@alpinelinux.org>
+# Contributor: Natanael Copa <ncopa@alpinelinux.org>
+# Contributor: Carlo Landmeter <clandmeter@alpinelinux.org>
+# Maintainer: Taeyeon Mori <orochimarufan.x3@gmail.com>
 
 # vim: set noet:
 # vim: set ft=sh:
@@ -12,7 +14,7 @@ case $pkgver in
 *.*) _branch=$pkgver;;
 esac
 
-pkgrel=0
+pkgrel=1
 pkgdesc="Music daemon that plays MP3, FLAC, and Ogg Vorbis files"
 url="http://musicpd.org"
 pkgusers="mpd"
@@ -23,7 +25,8 @@ depends=
 makedepends="lame-dev glib-dev curl-dev libao-dev libmad-dev flac-dev
 	libogg-dev faad2-dev libid3tag-dev libvorbis-dev alsa-lib-dev
 	libsamplerate-dev libshout-dev libmodplug-dev boost-dev icu-dev
-	autoconf automake libtool ffmpeg-dev pulseaudio-dev"
+	libnfs-dev samba-dev ffmpeg-dev pulseaudio-dev
+	autoconf automake libtool"
 install="$pkgname.pre-install"
 subpackages="$pkgname-doc $pkgname-dbg"
 source="http://www.musicpd.org/download/mpd/$_branch/mpd-$pkgver.tar.xz
@@ -56,6 +59,8 @@ build() {
 		--infodir=/usr/share/info \
 		--enable-shout \
 		--enable-modplug \
+		--enable-nfs \
+		--enable-smbclient \
 		--enable-pulse \
 		--enable-ffmpeg \
 		|| return 1
