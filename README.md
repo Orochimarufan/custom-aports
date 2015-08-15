@@ -39,3 +39,13 @@ New packages
 [deb-libstdc++6]: https://packages.debian.org/jessie/libstdc++6
 [plex]: https://plex.tv
 
+apply-upstream.sh
+-----------------
+This is a useful script I came up with to import commits to modified packages
+from upstream aports.
+
+It streamlines creating (format-patch) and applying (am) git patches,
+as well as trying to help with conflict resolution should the need arise.
+This script in particular is only useful for aports, but similar approaches
+could be taken in comparable situations. Do whatever you want with it.
+
