@@ -1,4 +1,4 @@
---- unp/usr/sbin/start_pms
+--- plexmediaserver/usr/sbin/start_pms
 +++ start_pms
 @@ -1,14 +1,12 @@
  #!/bin/sh
@@ -21,7 +21,7 @@
  if [ ! -d "$PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR" ]
  then
    mkdir -p "$PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR"
-@@ -19,11 +17,17 @@
+@@ -19,14 +17,18 @@
    fi
  fi
  
@@ -38,6 +38,9 @@
  
  ulimit -s $PLEX_MAX_STACK_SIZE
  
--(cd /usr/lib/plexmediaserver; ./Plex\ Media\ Server)
+-# Add sleep - Possible fix for start on boot.
+-sleep 3
 +cd "$PLEX_MEDIA_SERVER_HOME"
 +exec "$PLEX_MEDIA_SERVER_HOME/Plex Media Server"
+ 
+-(cd /usr/lib/plexmediaserver; ./Plex\ Media\ Server)
