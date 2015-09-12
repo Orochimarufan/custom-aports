@@ -7,7 +7,7 @@
 
 pkgname=pulseaudio
 pkgver=6.0
-pkgrel=4
+pkgrel=5
 arch=all
 
 pkgdesc="A featureful, general-purpose sound server"
@@ -17,7 +17,7 @@ license="LGPL"
 depends=""
 depends_dev="libcap-dev json-c-dev libsndfile-dev dbus-dev alsa-lib-dev tdb-dev"
 makedepends="$depends_dev m4 libtool intltool
-             udev-dev dbus-dev speex-dev gconf-dev avahi-dev gtk+3.0-dev xen-dev
+             eudev-dev dbus-dev speex-dev gconf-dev avahi-dev xen-dev
              jack-dev orc-dev libasyncns-dev speexdsp-dev fftw-dev libice-dev libsm-dev
              bluez-dev sbc-dev"
 
@@ -60,10 +60,9 @@ build() {
         --localstatedir=/var \
         --mandir=/usr/share/man \
         --infodir=/usr/share/info \
-        --enable-alsa --enable-esound --enable-glib2 --enable-gtk3 --enable-gconf --enable-avahi \
+        --enable-alsa --enable-esound --enable-glib2 --disable-gtk3 --enable-gconf --enable-avahi \
         --enable-jack --enable-asyncns --enable-dbus --enable-udev --enable-xen --enable-orc \
-        --enable-bluez5 \
-        --disable-bluez4 --disable-samplerate --disable-tcpwrap \
+        --enable-bluez5 --disable-bluez4 --disable-samplerate --disable-tcpwrap \
         --disable-rpath \
         --disable-default-build-tests \
         || return 1
@@ -81,9 +80,6 @@ package() {
         bashcompletiondir=/usr/share/bash-completion/completions || return 1
 
     rm -rf "$pkgdir"/etc/dbus-1
-
-    # libtool files
-    find "$pkgdir/usr/lib" -name '*.la' -delete
 
     install -D -m755 "$srcdir"/$pkgname.initd \
         "$pkgdir"/etc/init.d/$pkgname || return 1
