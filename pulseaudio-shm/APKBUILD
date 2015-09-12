@@ -7,7 +7,7 @@
 
 pkgname=pulseaudio-shm
 pkgver=6.0
-pkgrel=3
+pkgrel=4
 arch=all
 
 conflicts="pulseaudio"
@@ -20,7 +20,7 @@ license="LGPL"
 
 depends_dev="libcap-dev json-c-dev libsndfile-dev dbus-dev alsa-lib-dev tdb-dev"
 makedepends="$depends_dev m4 libtool intltool
-             udev-dev dbus-dev speex-dev orc-dev libasyncns-dev speexdsp-dev fftw-dev"
+             eudev-dev dbus-dev speex-dev orc-dev libasyncns-dev speexdsp-dev fftw-dev"
 
 source="http://freedesktop.org/software/pulseaudio/releases/pulseaudio-$pkgver.tar.gz
     pulseaudio.initd
@@ -65,9 +65,6 @@ package() {
         bashcompletiondir=/usr/share/bash-completion/completions || return 1
 
     rm -rf "$pkgdir"/etc/dbus-1
-
-    # libtool files
-    find "$pkgdir/usr/lib" -name '*.la' -delete
 
     install -D -m755 "$srcdir"/pulseaudio.initd \
         "$pkgdir"/etc/init.d/pulseaudio || return 1
