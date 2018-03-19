@@ -1,0 +1,24 @@
+# Maintainer: Taeyeon Mori <orochimarufan.x3@gmail.com>
+# Based on PKGBUILD by NicoHood and Xiaoxiao Pu
+
+pkgname=create_ap
+pkgver=0.4.6.1
+tagver=${pkgver}-alpine
+pkgrel=0
+pkgdesc="A shell script to create a NATed/Bridged Software Access Point"
+arch=noarch
+url="https://github.com/oblique/create_ap"
+license='BSD'
+depends='bash hostapd iproute2 iw dnsmasq iptables procps'
+#optdepends=('haveged: boost low entropy')
+#backup=('etc/create_ap.conf')
+source="${pkgname}-${tagver}.tar.gz::https://github.com/Orochimarufan/create_ap/archive/v${tagver}.tar.gz"
+options="!check"
+
+package() {
+    make -C "${srcdir}/${pkgname}-${tagver}" DESTDIR="${pkgdir}" install
+    # don't want docs
+    rm -rf "${pkgdir}/usr/share/doc"
+}
+
+sha512sums="50ebc743fe6b7f7600085d7acd4f6eef15300f671514223285e6e49a59390882a5e0283a0ac23e51281fa88f6554cd9b277de82ded2e55a947350f07e6730a2a  create_ap-0.4.6.1-alpine.tar.gz"
