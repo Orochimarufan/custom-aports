@@ -3,8 +3,8 @@
 
 pkgname=create_ap
 pkgver=0.4.6.1
-tagver=${pkgver}-alpine
-pkgrel=0
+tagver=${pkgver}-alpine2
+pkgrel=1
 pkgdesc="A shell script to create a NATed/Bridged Software Access Point"
 arch=noarch
 url="https://github.com/oblique/create_ap"
@@ -21,4 +21,4 @@ package() {
     rm -rf "${pkgdir}/usr/share/doc"
 }
 
-sha512sums="50ebc743fe6b7f7600085d7acd4f6eef15300f671514223285e6e49a59390882a5e0283a0ac23e51281fa88f6554cd9b277de82ded2e55a947350f07e6730a2a  create_ap-0.4.6.1-alpine.tar.gz"
+sha512sums="3e3cff4756afbb4463992f7ca28780c0429e108dc7e224b1867d108e069fe10fb31577c6b210d526ad9c41c185d7fd4de0eb97a94b478f4e0a5035cfd38fe494  create_ap-0.4.6.1-alpine2.tar.gz"
